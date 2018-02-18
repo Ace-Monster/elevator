@@ -13,7 +13,7 @@ struct QSS{
     {
         return this->requesttime < p.requesttime;
     }
-} q[5];//请求
+} q[5];//乘客请求
 
 struct DT{
     int num = 0;//等待总时间
@@ -78,11 +78,12 @@ int plan_AB(DT tempd, QSS tq[], const int num[], int wti[11][2])
     int t_num = 0;
     for(int j = 0;j < 7;j++)
     {
-        if(num[j] < 0 && tempd.flt != ((num[j]+2) ? 10 : 1) && tempd.peo[!(num[j]+2)] != 0)//枚举类型，判断是否到达，判断是否需要停靠
+        if(num[j] < 0 && tempd.peo[!(num[j]+2)] != 0)//枚举类型，判断是否需要停靠
             t_num += plan_A(&tempd,num[j],tempq,wt);
         if(num[j] >= 0 && tempq[num[j]].quan == 1)//枚举类型，该乘客是否在等待
             t_num += plan_B(&tempd,num[j],tempq,wt);
     }
+    //电梯最后肯定是要在这些楼层停下的
     if(tempd.flt != 1 && tempd.peo[1] != 0)//判断是否到达，判断是否需要停靠
         t_num += plan_A(&tempd,-2,tempq,wt);
     if(tempd.flt != 10 && tempd.peo[0] != 0)//判断是否到达，判断是否需要停靠
@@ -92,9 +93,9 @@ int plan_AB(DT tempd, QSS tq[], const int num[], int wti[11][2])
 
 DT ycz(DT tempd, QSS tempq[], int wt[11][2])//第一层判断，直接决定电梯的下一步运行目标
 {
-    int num[7] = {-2,-1,0,1,2,3,4}, tt_num = 1000;//小于0为楼层编号，-2->0->1，-1->1->10，大于0为乘客编号
+    int num[7] = {-2,-1,0,1,2,3,4}, tt_num = 1000;//num为电梯运行顺序排序，小于0为楼层编号，-2->0->1，-1->1->10，大于0为乘客编号
     do{
-        if(num[0] < 0 && (tempd.flt == ((num[0]+2) ? 10 : 1) || tempd.peo[!(num[0]+2)] == 0))
+        if(num[0] < 0 && (tempd.flt == ((num[0]+2) ? 10 : 1) || tempd.peo[!(num[0]+2)] == 0))//筛掉无意义的第一步
             continue;
         if(num[0] >= 0 && tempq[num[0]].quan != 1)
             continue;
@@ -110,8 +111,9 @@ DT ycz(DT tempd, QSS tempq[], int wt[11][2])//第一层判断，直接决定电�
     return tempd;
 }
 
-void stopmassage(int wt[11][2])
+void stopmassage(int wt[11][2])//停下后的状态调整
 {
+
     d.num += d.peo_size() * d.tegettime;
     d.systime += d.tegettime;
     d.sumtime += d.tegettime;
@@ -124,8 +126,10 @@ void stopmassage(int wt[11][2])
     for(int k = 0;k < 5;k++)
         if(q[k].waitflt == d.flt && q[k].quan == 1)
             q[k].quan = -1;
+    /*
     printf("第%d秒，电梯在%d停靠，%d人下电梯，%d人上电梯，电梯内%d人\n",
            d.systime, d.flt, temp_peo - d.peo_size(), temp_peo2 - d.peo[2], d.peo_size() - d.peo[2]);
+    *///注释部分用于调试，输出每次停下时的人员变化
     d.systime++,d.sumtime++;
     d.num += d.peo_size();
     d = ycz(d,q,wt);
@@ -134,16 +138,21 @@ void stopmassage(int wt[11][2])
 int main()
 {
     for(int i = 0; i < 5; i++)
-        scanf("%d %d %d", &q[i].requesttime, &q[i].waitflt, &q[i].fgo);
-    sort(q,q+5);
+        scanf("%d %d %d", &q[i].requesttime, &q[i].waitflt, &q[i].fgo);//输入
+    sort(q,q+5);//根据时间排序
     int wt[11][2] = {0};//某层几人等待
 
-    for(int i = 0;i < 5;i++)
+    for(int i = 0;i < 5;i++)//遍历请求
     {
         if(d.peo_size() == 0)
             d.systime = q[i].requesttime;
-        while((d.systime+d.tegettime) <= q[i].requesttime)
-            stopmassage(wt);
+        while((d.systime+d.tegettime) < q[i].requesttime)
+        {
+            if(d.peo_size() == 0)
+                d.systime = q[i].requesttime;
+            else
+                stopmassage(wt);
+        }
         d.num += (q[i].requesttime - d.systime) * d.peo_size();
         d.sumtime += q[i].requesttime - d.systime;
         if(d.flt > d.tegetflt)
@@ -156,7 +165,7 @@ int main()
         q[i].quan = 1;
         d = ycz(d,q,wt);
     }
-    while(d.peo_size() != 0)
+    while(d.peo_size() != 0)//直到运完所有人
         stopmassage(wt);
     printf("共花时间:%d", d.num);
     return 0;
