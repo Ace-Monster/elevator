@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 class QSS {
 public:
 	int requesttime;//请求时间
@@ -135,6 +134,6 @@ void stopmassage(DT &d, QSS q[], int wt[], bool tflt[], int n)//停下后的状态调整
 	*///注释部分用于调试，输出每次停下时的人员变化
 	d.times.systime++, d.times.sumtime++;
 	d.times.num += d.peo.peo_size();
-	std::cout << d.times.sumtime << ' ' << d.flt.flt << std::endl;
+	std::cout << d.times.systime << ' ' << d.flt.flt << std::endl;
 	d = ycz(d, q, wt, tflt, n);
 }

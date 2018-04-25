@@ -10,12 +10,12 @@ int main()
 	freopen("input.txt", "r", stdin);
 	freopen("output.txt", "w", stdout);
 	int n;//请求人数
-	cin >> n;
 	int m = 3;//楼层数量
+	cin >> n;
 	QSS *q = new QSS[n];
 	DT d;
 	for (int i = 0; i < n; i++)
-		cin >> q[i].requesttime >> q[i].waitflt >> q[i].tegetflt;
+	cin >> q[i].requesttime >> q[i].waitflt >> q[i].tegetflt;
 	//sort(q, q + 5);//按时间排序
 	int *wt = new int[m];
 	bool *tflt = new bool[m];
