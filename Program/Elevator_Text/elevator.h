@@ -82,7 +82,7 @@ public:
 class Run {
 private:
 	static int time_compute(Elevator*, Ask[], int[], bool[], int, int);//下一层判断前临时改变电梯参数
-	static int dfs(Elevator, Ask[], int[], bool[], int, int);//ycz调用的，第二及之后的判断，返回电梯运行时间
+	static int dfs(Elevator, Ask[], int[], bool[], int, int);//elevator_update调用的，第二及之后的判断，返回电梯运行时间
 public:
 	static Elevator elevator_update(Elevator, Ask[], int[], bool[], int);//第一层判断，直接决定电梯的下一步运行目标
 	static void stop_massage(Elevator&, Ask[], int[], bool[], int);//停下后的状态调整

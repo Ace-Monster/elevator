@@ -76,11 +76,11 @@ int Elevator::floor_arrive(int _floor, int uptime){
         uptime = times.target_time;
     }
     floors.floor = _floor;
-	times_update(uptime);
-	bool flag1 = people_down(_floor, times.system_time);
-	bool flag2 = people_up(_floor);
-	bool flag = (flag1 || flag2);
-	return flag;//·µ»ØÊÇ·ñÍ£¿¿
+    times_update(uptime);
+    bool flag1 = people_down(_floor, times.system_time);
+    bool flag2 = people_up(_floor);
+    bool flag = (flag1 || flag2);
+    return flag;
 }
 
 const int Elevator::size(){
@@ -94,9 +94,9 @@ const std::vector<Ask> Elevator::message_get() {
 	return message;
 }
 
-void Elevator::people_distribute(Ask* t_people){
+void Elevator::people_distribute(Ask* t_people) {
 	t_people->w_status(Ask::DISTRIBUTED);
-    people.people.push_back(t_people);
+	people.people.push_back(t_people);
 }
 
 bool Elevator::people_up(int floor) {
@@ -105,12 +105,16 @@ bool Elevator::people_up(int floor) {
 	{
 		if ((*at)->r_wait_floor() == floor && (*at)->r_status() == Ask::DISTRIBUTED)
 		{
-			//std::cout << "UP" << std::endl;
 			(*at)->w_status(Ask::RUNING);
 			Flag = true;
 		}
 	}
 	return Flag;
+}
+
+void Elevator::people_up(Ask* t_people){
+	t_people->w_status(Ask::RUNING);
+    people.people.push_back(t_people);
 }
 
 bool Elevator::people_down(int floor, int system_time) {
@@ -121,9 +125,8 @@ bool Elevator::people_down(int floor, int system_time) {
         while(flag && at != people.people.end())
         {
             flag = false;
-            if((*at)->r_target_floor() == floor && (*at)->r_status() == Ask::RUNING)
+            if((*at)->r_target_floor() == floor)
             {
-				//std::cout << "OUT"<< (*at)->r_request_time() << " " <<(*at)->r_target_floor()<< " " << (*at)->r_status() << std::endl;
 				(*at)->completed(system_time);
                 at = people.people.erase(at);
                 flag = true;
